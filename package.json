@@ -1,14 +1,14 @@
 {
-  "name": "npm-auth-helper",
+  "name": "npm-github-packages-helper",
   "version": "1.0.0",
   "license": "LGPL-3.0-or-later",
   "bin": {
-    "npm-auth-helper": "dist/npm-auth-helper"
+    "npm-github-packages-helper": "dist/npm-github-packages-helper"
   },
   "scripts": {
     "prebuild": "rimraf dist/*",
     "build": "ncc build src/index.ts --minify --out dist",
-    "postbuild": "shx mv dist/index.js dist/npm-auth-helper"
+    "postbuild": "shx mv dist/index.js dist/npm-github-packages-helper"
   },
   "dependencies": {
     "@vercel/ncc": "^0.27.0",

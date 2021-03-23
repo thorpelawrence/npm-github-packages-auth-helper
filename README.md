@@ -1,22 +1,22 @@
-# npm-auth-helper
+# npm-github-packages-auth-helper
 
 Tool to help manage `.npmrc` and token storage/access **securely** and **automatically** on shell startup, using the [system keychain](https://github.com/atom/node-keytar).
 
 Compiled using [ncc](https://github.com/vercel/ncc), no need to have the npm dependencies installed locally.
 
-Make sure when extracting the archives, to also include the `build` folder next to the `npm-auth-helper`, which contains necessary native binaries for your platform.
+Make sure when extracting the archives, to also include the `build` folder next to the `npm-github-packages-helper`, which contains necessary native binaries for your platform.
 
 ## Usage
 
 Use the `--help` command.
 
 ```shell
-npm-auth-helper --help
+npm-github-packages-helper --help
 ```
 
 ### Windows
 
-> On Windows, might need to explicitly run with `node`, i.e. `node npm-auth-helper`
+> On Windows, might need to explicitly run with `node`, i.e. `node npm-github-packages-helper`
 
 ### Linux
 

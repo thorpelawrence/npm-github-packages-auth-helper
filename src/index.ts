@@ -8,15 +8,12 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import keytar from "keytar";
 
-const NPM_SCOPE_NAME = "@example";
-const NPM_REGISTRY_NAME = `${NPM_SCOPE_NAME}:registry`;
-const NPM_REGISTRY_URL = "https://npm.pkg.github.com";
-const PASSWORD_SERVICE = "NPM_TOKEN";
+const PASSWORD_SERVICE_ENV_VAR = "NPM_TOKEN";
 const PASSWORD_ACCOUNT = os.userInfo().username;
 
 const PROCESS_NAME = `${
   os.platform() === "win32" ? "node " : ""
-}npm-auth-helper`;
+}npm-github-packages-helper`;
 
 const cli = meow(
   `
@@ -30,8 +27,8 @@ const cli = meow(
     $ ${PROCESS_NAME} setup-shell
 
   Commands
-    env          Usage: eval this (see example) to set environment variable $${PASSWORD_SERVICE}
-    init         Sets up .npmrc and token for consuming ${NPM_SCOPE_NAME} GitHub packages
+    env          Usage: eval this (see example) to set environment variable $${PASSWORD_SERVICE_ENV_VAR}
+    init         Sets up .npmrc and token for consuming GitHub packages
     reset-token  Reset access token
     clear-token  Remove access token
     setup-shell  Print instructions for setting up shell
@@ -113,7 +110,7 @@ function unsetNpmConfig(key: string) {
 
 async function resetToken(secretToken?: string) {
   const existingToken = !!(await keytar.getPassword(
-    PASSWORD_SERVICE,
+    PASSWORD_SERVICE_ENV_VAR,
     PASSWORD_ACCOUNT
   ));
   const {
@@ -123,7 +120,7 @@ async function resetToken(secretToken?: string) {
     {
       type: "confirm",
       name: "overwrite",
-      message: `Access token $${PASSWORD_SERVICE} already exists. Overwrite?`,
+      message: `Access token $${PASSWORD_SERVICE_ENV_VAR} already exists. Overwrite?`,
       when: !cli.flags.yes && existingToken,
       default: false,
     },
@@ -142,7 +139,7 @@ async function resetToken(secretToken?: string) {
   ]);
   if (cli.flags.yes || !existingToken || overwrite) {
     await keytar.setPassword(
-      PASSWORD_SERVICE,
+      PASSWORD_SERVICE_ENV_VAR,
       PASSWORD_ACCOUNT,
       secretToken ?? secretGithubToken
     );
@@ -154,13 +151,13 @@ async function deleteToken() {
     {
       type: "confirm",
       name: "confirmDelete",
-      message: `Delete token $${PASSWORD_SERVICE}?`,
+      message: `Delete token $${PASSWORD_SERVICE_ENV_VAR}?`,
       when: !cli.flags.yes,
       default: false,
     },
   ]);
   if (cli.flags.yes || confirmDelete) {
-    await keytar.deletePassword(PASSWORD_SERVICE, PASSWORD_ACCOUNT);
+    await keytar.deletePassword(PASSWORD_SERVICE_ENV_VAR, PASSWORD_ACCOUNT);
   }
   unsetNpmConfig("//npm.pkg.github.com/:_authToken");
   console.log(
@@ -170,7 +167,7 @@ async function deleteToken() {
 
 async function printEnv() {
   const secretNpmToken = await keytar.getPassword(
-    PASSWORD_SERVICE,
+    PASSWORD_SERVICE_ENV_VAR,
     PASSWORD_ACCOUNT
   );
   if (secretNpmToken) {
@@ -178,15 +175,15 @@ async function printEnv() {
     const isPowerShell =
       (process.env.PSModulePath || "").split(pathDelimiter).length >= 3;
     if (isPowerShell) {
-      console.log(`$env:${PASSWORD_SERVICE}='${secretEnvVar}'`);
+      console.log(`$env:${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
     } else {
-      console.log(`export ${PASSWORD_SERVICE}='${secretEnvVar}'`);
+      console.log(`export ${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
     }
     process.exit(0);
   }
   console.log(
     "echo",
-    chalk`'{blue [${PROCESS_NAME}]} {yellow {inverse WARN:} No keychain entry found for {blue $${PASSWORD_SERVICE}}; try running:} {bold ${PROCESS_NAME} init}'`
+    chalk`'{blue [${PROCESS_NAME}]} {yellow {inverse WARN:} No keychain entry found for {blue $${PASSWORD_SERVICE_ENV_VAR}}; try running:} {bold ${PROCESS_NAME} init}'`
   );
   process.exit(1);
 }
@@ -206,7 +203,7 @@ async function printEnv() {
       // so, overwrite anyway it knowing that the token should now be in the keychain
       setNpmConfig(
         "//npm.pkg.github.com/:_authToken",
-        `$\{${PASSWORD_SERVICE}}`
+        `$\{${PASSWORD_SERVICE_ENV_VAR}}`
       );
       printShellHelp();
       break;
