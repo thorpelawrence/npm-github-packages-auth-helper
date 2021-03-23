@@ -1,19 +1,10 @@
 #!/usr/bin/env node
 
-import os from "os";
-import { delimiter as pathDelimiter } from "path";
-import execa from "execa";
 import meow from "meow";
-import inquirer from "inquirer";
-import chalk from "chalk";
-import keytar from "keytar";
-
-const PASSWORD_SERVICE_ENV_VAR = "NPM_TOKEN";
-const PASSWORD_ACCOUNT = os.userInfo().username;
-
-const PROCESS_NAME = `${
-  os.platform() === "win32" ? "node " : ""
-}npm-github-packages-helper`;
+import { printEnv, printShellHelp } from "./util";
+import { setNpmConfig } from "./util/npm-config";
+import { deleteToken, resetToken } from "./util/token";
+import { PASSWORD_SERVICE_ENV_VAR, PROCESS_NAME } from "./util/constants";
 
 const cli = meow(
   `
@@ -48,170 +39,29 @@ const cli = meow(
   }
 );
 
-function printShellHelp() {
-  console.log(
-    chalk`{green.inverse INFO:} To configure your shell to set the token on startup:`
-  );
-  console.log(chalk`
-    {bold.underline Bash}
-      Append to {bold ~/.bashrc}:
-        eval \"\$(${PROCESS_NAME} env)\"
-    {bold.underline Zsh}
-      Append to {bold ~/.zshrc}:
-        eval \"\$(${PROCESS_NAME} env)\"
-    {bold.underline Fish}
-      Append to {bold ~/.config/fish/config.fish}:
-        ${PROCESS_NAME} env | source
-    {bold.underline PowerShell}
-      Append {bold Microsoft.PowerShell_profile.ps1}
-        Invoke-Expression (&${PROCESS_NAME} env)
-      {italic Check the location of this file in PowerShell $PROFILE variable.
-      E.g. ~\\Documents\\PowerShell\\Microsoft.PowerShell_profile.ps1
-      or ~/.config/powershell/Microsoft.PowerShell_profile.ps1 on *nix.}
-  `);
-}
-
-let npmrcPath: string;
-
-function updateNpmrcPath() {
-  if (!npmrcPath) {
-    const { stdout } = execa.sync("npm", ["config", "get", "userconfig"]);
-    npmrcPath = stdout;
-  }
-}
-
-function setNpmConfig(key: string, value: string) {
-  updateNpmrcPath();
-  console.log(
-    chalk`{green.inverse INFO:} Setting {green ${key}}={blue ${value}} in {red.underline ${npmrcPath}}`
-  );
-  const { command } = execa.sync("npm", ["config", "set", key, value], {
-    stdio: "inherit",
-  });
-  console.log(
-    chalk`{green {inverse INFO:} Executing}`,
-    chalk`{grey ${command}}`
-  );
-}
-
-function unsetNpmConfig(key: string) {
-  updateNpmrcPath();
-  console.log(
-    chalk`{green.inverse INFO:} Unsetting {green ${key}} in {red.underline ${npmrcPath}}`
-  );
-  const { command } = execa.sync("npm", ["config", "delete", key], {
-    stdio: "inherit",
-  });
-  console.log(
-    chalk`{green {inverse INFO:} Executing}`,
-    chalk`{grey ${command}}`
-  );
-}
-
-async function resetToken(secretToken?: string) {
-  const existingToken = !!(await keytar.getPassword(
-    PASSWORD_SERVICE_ENV_VAR,
-    PASSWORD_ACCOUNT
-  ));
-  const {
-    token: secretGithubToken,
-    overwrite,
-  }: { token: string; overwrite: boolean } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "overwrite",
-      message: `Access token $${PASSWORD_SERVICE_ENV_VAR} already exists. Overwrite?`,
-      when: !cli.flags.yes && existingToken,
-      default: false,
-    },
-    {
-      type: "password",
-      name: "token",
-      message: "GitHub personal access token",
-      validate: (input: string) =>
-        input.length > 0 ? true : "Not a valid access token",
-      mask: "*",
-      suffix:
-        " (https://github.com/settings/tokens/new, make sure to enable SSO)",
-      when: (answers) =>
-        !secretToken && (cli.flags.yes || !existingToken || answers.overwrite),
-    },
-  ]);
-  if (cli.flags.yes || !existingToken || overwrite) {
-    await keytar.setPassword(
-      PASSWORD_SERVICE_ENV_VAR,
-      PASSWORD_ACCOUNT,
-      secretToken ?? secretGithubToken
-    );
-  }
-}
-
-async function deleteToken() {
-  const { confirmDelete }: { confirmDelete: boolean } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "confirmDelete",
-      message: `Delete token $${PASSWORD_SERVICE_ENV_VAR}?`,
-      when: !cli.flags.yes,
-      default: false,
-    },
-  ]);
-  if (cli.flags.yes || confirmDelete) {
-    await keytar.deletePassword(PASSWORD_SERVICE_ENV_VAR, PASSWORD_ACCOUNT);
-  }
-  unsetNpmConfig("//npm.pkg.github.com/:_authToken");
-  console.log(
-    chalk`{yellow {inverse WARN:} Make sure to run init again to reconfigure .npmrc}`
-  );
-}
-
-async function printEnv() {
-  const secretNpmToken = await keytar.getPassword(
-    PASSWORD_SERVICE_ENV_VAR,
-    PASSWORD_ACCOUNT
-  );
-  if (secretNpmToken) {
-    const secretEnvVar = secretNpmToken ?? "";
-    const isPowerShell =
-      (process.env.PSModulePath || "").split(pathDelimiter).length >= 3;
-    if (isPowerShell) {
-      console.log(`$env:${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
-    } else {
-      console.log(`export ${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
-    }
-    process.exit(0);
-  }
-  console.log(
-    "echo",
-    chalk`'{blue [${PROCESS_NAME}]} {yellow {inverse WARN:} No keychain entry found for {blue $${PASSWORD_SERVICE_ENV_VAR}}; try running:} {bold ${PROCESS_NAME} init}'`
-  );
-  process.exit(1);
-}
-
 (async () => {
   switch (cli.input[0]) {
     case "env":
       printEnv();
       break;
     case "setup-shell":
-      printShellHelp();
+      printShellHelp(PROCESS_NAME);
       break;
     case "init":
-      await resetToken(cli.input[1]);
-      setNpmConfig(NPM_REGISTRY_NAME, NPM_REGISTRY_URL);
+      await resetToken(cli.input[1], cli.flags.yes);
       // there's no easy way to check this is set, as it's (understandably) protected from reading by npm config
       // so, overwrite anyway it knowing that the token should now be in the keychain
       setNpmConfig(
         "//npm.pkg.github.com/:_authToken",
         `$\{${PASSWORD_SERVICE_ENV_VAR}}`
       );
-      printShellHelp();
+      printShellHelp(PROCESS_NAME);
       break;
     case "reset-token":
       await resetToken(cli.input[1]);
       break;
     case "clear-token":
-      await deleteToken();
+      await deleteToken(cli.flags.yes);
       break;
     default:
       cli.showHelp();
