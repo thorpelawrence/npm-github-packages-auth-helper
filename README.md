@@ -2,9 +2,9 @@
 
 Tool to help manage `.npmrc` and token storage/access **securely** and **automatically** on shell startup, using the [system keychain](https://github.com/atom/node-keytar).
 
-For convenience, the package is compiled using [ncc](https://github.com/vercel/ncc), which means that you don't need to have the npm dependencies installed locally.
+Compiled using [ncc](https://github.com/vercel/ncc), no need to have the npm dependencies installed locally.
 
-Make sure when extracting the `.zip` files, you include the `build` folder next to the `npm-auth-helper`, which contains necessary native binaries for your platform.
+Make sure when extracting the archives, to also include the `build` folder next to the `npm-auth-helper`, which contains necessary native binaries for your platform.
 
 ## Usage
 
@@ -16,11 +16,11 @@ npm-auth-helper --help
 
 ### Windows
 
-> On Windows, you might need to explicitly run with `node`, i.e. `node npm-auth-helper`
+> On Windows, might need to explicitly run with `node`, i.e. `node npm-auth-helper`
 
 ### Linux
 
-> You may need [install libsecret](https://github.com/atom/node-keytar#on-linux) on linux.
+> May need [install libsecret](https://github.com/atom/node-keytar#on-linux) on linux.
 
 ## Build from source
 
@@ -36,3 +36,7 @@ yarn build
 ```
 
 The output will be in the `dist` folder.
+
+## References
+
+- <https://docs.github.com/en/packages/guides/configuring-npm-for-use-with-github-packages#authenticating-to-github-packages>
