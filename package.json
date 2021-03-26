@@ -10,6 +10,9 @@
     "build": "ncc build src/index.ts --minify --out dist",
     "postbuild": "shx mv dist/index.js dist/npm-github-packages-helper"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "dependencies": {
     "@vercel/ncc": "^0.27.0",
     "chalk": "^4.1.0",
