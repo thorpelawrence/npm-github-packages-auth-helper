@@ -1,14 +1,14 @@
 {
-  "name": "npm-github-packages-helper",
-  "version": "1.0.1",
+  "name": "npm-github-packages-auth-helper",
+  "version": "1.1.0",
   "license": "LGPL-3.0-or-later",
   "bin": {
-    "npm-github-packages-helper": "dist/npm-github-packages-helper"
+    "npm-github-packages-auth-helper": "dist/npm-github-packages-auth-helper"
   },
   "scripts": {
     "prebuild": "rimraf dist/*",
     "build": "ncc build src/index.ts --minify --out dist",
-    "postbuild": "shx mv dist/index.js dist/npm-github-packages-helper && shx cp package.json LICENSE dist"
+    "postbuild": "shx mv dist/index.js dist/npm-github-packages-auth-helper && shx cp package.json LICENSE dist"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

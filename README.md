@@ -4,19 +4,19 @@ Tool to help manage `.npmrc` and token storage/access **securely** and **automat
 
 Compiled using [ncc](https://github.com/vercel/ncc), no need to have the npm dependencies installed locally.
 
-Make sure when extracting the archives, to also include the files alongside `npm-github-packages-helper`, which contain configs and necessary native binaries for your platform.
+Make sure when extracting the archives, to also include the files alongside `npm-github-packages-auth-helper`, which contain configs and necessary native binaries for your platform.
 
 ## Usage
 
 Use the `--help` command.
 
 ```shell
-npm-github-packages-helper --help
+npm-github-packages-auth-helper --help
 ```
 
 ### Windows
 
-> On Windows, might need to explicitly run with `node`, i.e. `node npm-github-packages-helper`
+> On Windows, might need to explicitly run with `node`, i.e. `node npm-github-packages-auth-helper`
 
 ### Linux
 
