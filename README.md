@@ -4,7 +4,7 @@ Tool to help manage `.npmrc` and token storage/access **securely** and **automat
 
 Compiled using [ncc](https://github.com/vercel/ncc), no need to have the npm dependencies installed locally.
 
-Make sure when extracting the archives, to also include the `build` folder next to the `npm-github-packages-helper`, which contains necessary native binaries for your platform.
+Make sure when extracting the archives, to also include the files alongside `npm-github-packages-helper`, which contain configs and necessary native binaries for your platform.
 
 ## Usage
 
