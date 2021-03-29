@@ -12,5 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: git config
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
     - run: yarn version ${{ github.event.inputs.yarn-version-flags }}
-    - uses: EndBug/add-and-commit@v7.1.0
+    - name: git push
+      run: |
+        git push
+        git push --tags
