@@ -18,7 +18,7 @@ const cli = meow(
     $ ${PROCESS_NAME} setup-shell
 
   Commands
-    env          Usage: eval this (see example) to set environment variable $${PASSWORD_SERVICE_ENV_VAR}
+    env          Usage: eval this (see also: setup-shell) to set environment variable $${PASSWORD_SERVICE_ENV_VAR}
     init         Sets up .npmrc and token for consuming GitHub packages
     reset-token  Reset access token
     clear-token  Remove access token
