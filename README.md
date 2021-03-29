@@ -1,5 +1,7 @@
 # npm-github-packages-auth-helper
 
+![Keyring logo](images/logo-keyring.png)
+
 Tool to help manage `.npmrc` and token storage/access **securely** and **automatically** on shell startup, using the [system keychain](https://github.com/atom/node-keytar).
 
 Compiled using [ncc](https://github.com/vercel/ncc), no need to have the npm dependencies installed locally.
