@@ -1,0 +1,54 @@
+name: Release new package version
+on:
+  workflow_dispatch:
+    inputs:
+      yarn-version-flags:
+        description: Flags for yarn version
+        default: '--patch'
+        required: true
+
+jobs:
+  version:
+    name: version ${{ github.event.inputs.yarn-version-flags }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: git config
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+    - run: yarn version ${{ github.event.inputs.yarn-version-flags }}
+    - name: git push
+      run: |
+        git push
+        git push --tags
+  release:
+    needs: [version]
+    strategy:
+      matrix:
+        npm_config_platform: [win32, linux, darwin]
+    runs-on: ubuntu-latest
+    env:
+      npm_config_platform: ${{ matrix.npm_config_platform }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          registry-url: 'https://npm.pkg.github.com'
+      - run: yarn
+      - run: yarn build
+      - name: Archive
+        run: zip -r "npm-github-packages-auth-helper-${npm_config_platform}.zip" .
+        working-directory: dist
+      - uses: WyriHaximus/github-action-get-previous-tag@v1
+        id: previoustag
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.previoustag.outputs.tag }}
+          files: 'dist/npm-github-packages-auth-helper-${{ env.npm_config_platform }}.zip'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
