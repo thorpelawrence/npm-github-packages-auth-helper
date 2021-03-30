@@ -3,9 +3,13 @@ name: Release
 on:
   release:
     types: [created]
+  push:
+    tags:
+     - '*'
 
 jobs:
-  build:
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
     strategy:
       matrix:
         npm_config_platform: [win32, linux, darwin]
@@ -24,7 +28,6 @@ jobs:
         run: zip -r "npm-github-packages-auth-helper-${npm_config_platform}.zip" .
         working-directory: dist
       - uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: 'dist/npm-github-packages-auth-helper-${{ env.npm_config_platform }}.zip'
         env:
