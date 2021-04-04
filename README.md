@@ -18,7 +18,7 @@ npm-github-packages-auth-helper --help
 
 #### Demo
 
-![Demo video](images/demo.webm)
+![Demo video](images/demo.gif)
 
 Demo using [cool-retro-term](https://github.com/Swordfish90/cool-retro-term)
 
