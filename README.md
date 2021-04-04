@@ -16,11 +16,11 @@ Use the `--help` command.
 npm-github-packages-auth-helper --help
 ```
 
-#### Demo
+### Demo
 
-![Demo video](images/demo.gif)
+[cool-retro-term](https://github.com/Swordfish90/cool-retro-term)
 
-Demo using [cool-retro-term](https://github.com/Swordfish90/cool-retro-term)
+[![Demo GIF](images/demo.gif)](https://user-images.githubusercontent.com/9198615/113524657-138d3e00-95a8-11eb-9862-3494ed5425e8.mp4)
 
 ### Windows
 
