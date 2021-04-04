@@ -16,6 +16,12 @@ Use the `--help` command.
 npm-github-packages-auth-helper --help
 ```
 
+#### Demo
+
+![Demo video](images/demo.webm)
+
+Demo using [cool-retro-term](https://github.com/Swordfish90/cool-retro-term)
+
 ### Windows
 
 > On Windows, might need to explicitly run with `node`, i.e. `node npm-github-packages-auth-helper`
