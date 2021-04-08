@@ -2,6 +2,7 @@
 
 import meow from "meow";
 import { printEnv, printShellHelp } from "./util";
+import { execWithEnv } from "./util/exec";
 import { setNpmConfig } from "./util/npm-config";
 import { deleteToken, resetToken } from "./util/token";
 import { PASSWORD_SERVICE_ENV_VAR, PROCESS_NAME } from "./util/constants";
@@ -13,6 +14,7 @@ const cli = meow(
 
   Examples
     $ ${PROCESS_NAME} init
+    $ ${PROCESS_NAME} exec -- yarn install
     $ ${PROCESS_NAME} reset-token # interactive
     $ ${PROCESS_NAME} reset-token $NEW_TOKEN
     $ ${PROCESS_NAME} setup-shell
@@ -20,6 +22,7 @@ const cli = meow(
   Commands
     env          Usage: eval this (see also: setup-shell) to set environment variable $${PASSWORD_SERVICE_ENV_VAR}
     init         Sets up .npmrc and token for consuming GitHub packages
+    exec         Run single command with access token set, alternative to env which exists for entire session
     reset-token  Reset access token
     clear-token  Remove access token
     setup-shell  Print instructions for setting up shell
@@ -43,6 +46,9 @@ const cli = meow(
   switch (cli.input[0]) {
     case "env":
       printEnv();
+      break;
+    case "exec":
+      execWithEnv(cli.input);
       break;
     case "setup-shell":
       printShellHelp(PROCESS_NAME);

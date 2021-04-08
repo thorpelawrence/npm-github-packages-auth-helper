@@ -30,25 +30,38 @@ export function printShellHelp(processName: string) {
   `);
 }
 
-export async function printEnv() {
+export async function getEnv(
+  isInteractive: boolean = false
+): Promise<NodeJS.ProcessEnv> {
+  const env = new Map<string, string>();
+
   const secretNpmToken = await keytar.getPassword(
     PASSWORD_SERVICE_ENV_VAR,
     PASSWORD_ACCOUNT
   );
-  if (secretNpmToken) {
-    const secretEnvVar = secretNpmToken ?? "";
-    const isPowerShell =
-      (process.env.PSModulePath || "").split(pathDelimiter).length >= 3;
-    if (isPowerShell) {
-      console.log(`$env:${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
+  if (!secretNpmToken) {
+    const errorMessage = chalk`{yellow {inverse WARN:} No keychain entry found for {blue $${PASSWORD_SERVICE_ENV_VAR}}; try running:} {bold ${PROCESS_NAME} init}`;
+    if (!isInteractive) {
+      console.log("echo", chalk`'{blue [${PROCESS_NAME}]} ${errorMessage}'`);
     } else {
-      console.log(`export ${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
+      console.log(errorMessage);
     }
-    process.exit(0);
+    process.exit(1);
   }
-  console.log(
-    "echo",
-    chalk`'{blue [${PROCESS_NAME}]} {yellow {inverse WARN:} No keychain entry found for {blue $${PASSWORD_SERVICE_ENV_VAR}}; try running:} {bold ${PROCESS_NAME} init}'`
-  );
-  process.exit(1);
+
+  env.set(PASSWORD_SERVICE_ENV_VAR, secretNpmToken);
+  return Object.fromEntries(env);
+}
+
+export async function printEnv() {
+  const env = await getEnv();
+  const secretEnvVar = env[PASSWORD_SERVICE_ENV_VAR] ?? "";
+  const isPowerShell =
+    (process.env.PSModulePath || "").split(pathDelimiter).length >= 3;
+  if (isPowerShell) {
+    console.log(`$env:${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
+  } else {
+    console.log(`export ${PASSWORD_SERVICE_ENV_VAR}='${secretEnvVar}'`);
+  }
+  process.exit(0);
 }
